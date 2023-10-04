@@ -1,8 +1,9 @@
 package main
 
 import (
-	"hld/centerlines"
 	"net/http"
+
+	"github.com/OpticalFlyer/hld/centerlines"
 
 	"github.com/gin-gonic/gin"
 )
