@@ -229,6 +229,101 @@
 
         drawnItems.addLayer(layer);
     });
+
+    var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        var drawControl = new L.Control.Draw({
+            draw: {
+                polyline: false,
+                polygon: false, // Initially, we'll disable it here, and enable it with the custom button
+                circle: false,
+                marker: false,
+                circlemarker: false,
+                rectangle: false
+            },
+            edit: false
+        });
+        map.addControl(drawControl);
+
+        // Create a custom control for the "Draw Polygon to Fetch Sites" button and add it to the map
+        var DrawPolygonControl = L.Control.extend({
+            options: {
+                position: 'topleft'
+            },
+
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                container.style.backgroundColor = 'white';
+                container.style.width = '30px';
+                container.style.height = '30px';
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+                container.style.cursor = 'pointer';
+
+                var icon = L.DomUtil.create('i', 'icon', container);
+                icon.textContent = 'Sites';
+                icon.title = 'Draw Polygon to Fetch Sites';
+
+                container.onclick = function () {
+                    new L.Draw.Polygon(map, drawControl.options.draw.polygon).enable();
+                };
+
+                return container;
+            }
+        });
+
+        map.addControl(new DrawPolygonControl());
+
+        map.on('draw:created', function (e) {
+            var type = e.layerType,
+                layer = e.layer;
+
+            if (type === 'polygon') {
+                var polygonCoords = layer.getLatLngs()[0];
+                var requestData = {
+                    polygon: polygonCoords.map(coord => [coord.lat, coord.lng])
+                };
+
+                // Query the backend
+                fetch('/sites-in-polygon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var sitesLayer = L.geoJSON(data, {
+                        pointToLayer: function(feature, latlng) {
+                            return L.circleMarker(latlng, {
+                                radius: 5, // size of the circle marker
+                                fillColor: "#ff7800", // color of the circle marker
+                                color: "#000",
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            });
+                        },
+                        onEachFeature: function (feature, layer) {
+                            if (feature.properties && feature.properties.popupContent) {
+                                layer.bindPopup(feature.properties.popupContent);
+                            }
+                        }
+                    }).addTo(map);
+
+                    // Remove the bounding box from the map
+                    map.removeLayer(layer);
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                });
+            }
+
+            drawnItems.addLayer(layer);
+        });
     </script>
 </body>
 </html>
