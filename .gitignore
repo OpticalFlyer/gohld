@@ -22,3 +22,6 @@ go.work
 
 # macOS
 .DS_Store
+
+# Data
+loader/All Colorado Address Points CPF.csv

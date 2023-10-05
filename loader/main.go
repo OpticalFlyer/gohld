@@ -30,7 +30,16 @@ func (Site) TableName() string {
 }
 
 func main() {
-	db, err := gorm.Open("postgres", "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
+
+	//connectionString := "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$" // Local
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=require password=%s", host, port, user, dbname, password)
+
+	db, err := gorm.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +56,7 @@ func main() {
 }
 
 func parseCSVAndInsert(db *gorm.DB) {
-	f, err := os.Open("/Users/chris/Downloads/All Colorado Address Points CPF.csv")
+	f, err := os.Open("All Colorado Address Points CPF.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
