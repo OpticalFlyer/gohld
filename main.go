@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/OpticalFlyer/hld/centerlines"
 
@@ -56,7 +57,16 @@ func handleGetSitesInPolygon(c *gin.Context) {
 	fmt.Println(polygonWKT)
 
 	// Establish your database connection
-	db, err := gorm.Open("postgres", "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
+
+	//connectionString := "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$" // Local
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=require password=%s", host, port, user, dbname, password)
+
+	db, err := gorm.Open("postgres", connectionString)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
 		return
