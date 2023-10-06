@@ -18,6 +18,7 @@ html, body {
 
 #toolbar {
     flex: none; /* This ensures it doesn't grow or shrink */
+    margin: auto;
     width: 50px;
     height: 100vh;
     background-color: #333;
