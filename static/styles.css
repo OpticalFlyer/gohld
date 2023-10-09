@@ -18,6 +18,7 @@ html, body {
 
 #toolbar {
     flex: none; /* This ensures it doesn't grow or shrink */
+    flex-direction: column;
     margin: auto;
     width: 50px;
     height: 100vh;
@@ -50,4 +51,21 @@ html, body {
 .leaflet-bar i {
     line-height: 26px;
     color: #404040;
+}
+
+/* Styles for screens with a max-width of 768px (typically tablets and below) */
+@media screen and (max-width: 768px) {
+    #container {
+        flex-direction: column-reverse; /* This stacks the map on top and toolbar at the bottom */
+    }
+
+    #toolbar {
+        flex-direction: row; /* This makes the toolbar elements align horizontally */
+        width: 100%; /* Full width */
+        height: 50px; /* Adjust as needed */
+    }
+
+    #map {
+        width: 100%;
+    }
 }
