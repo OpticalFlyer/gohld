@@ -54,7 +54,7 @@ html, body {
 }
 
 /* Styles for screens with a max-width of 768px (typically tablets and below) */
-@media only screen and (min-width: 844) and (orientation:portrait) {
+@media screen and (orientation:portrait) {
     #container {
         flex-direction: column-reverse; /* This stacks the map on top and toolbar at the bottom */
     }
