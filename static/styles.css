@@ -106,7 +106,6 @@ html, body {
     padding: 20px;
     border-radius: 8px; /* Rounded corners for the dialog */
     width: 300px; /* Fixed width, you can adjust as needed */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: adds a shadow for depth */
 }
 
 #login-header {

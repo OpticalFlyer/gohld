@@ -14,3 +14,8 @@ CREATE TABLE roads (
     id SERIAL PRIMARY KEY,
     geo_data GEOMETRY
 );
+
+# deployment
+git pull
+go build .
+systemctl restart hld
