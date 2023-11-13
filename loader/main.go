@@ -36,7 +36,6 @@ func main() {
 	dbname := os.Getenv("DB_NAME")
 	password := os.Getenv("DB_PASSWORD")
 
-	//connectionString := "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$" // Local
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=require password=%s", host, port, user, dbname, password)
 
 	db, err := gorm.Open("postgres", connectionString)

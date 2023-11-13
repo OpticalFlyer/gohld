@@ -21,7 +21,7 @@ html, body {
     color: #404040;
 }
 
-#toggle-sidebar {
+.toolbar-button {
     width: 100%;
     height: 50px;
     background-color: #555;
@@ -29,7 +29,10 @@ html, body {
     border: none;
     cursor: pointer;
     font-size: 24px;
+    text-align: left;
+    padding-left: 15px; /* Adjust padding as needed */
 }
+
 
 #sidebar {
     position: absolute;
@@ -37,15 +40,119 @@ html, body {
     left: 50px; /* The width of the toolbar */
     width: 0;
     height: 100vh;
-    background-color: rgba(240,240,240,0.9);
+    background-color: rgba(240,240,240,0.9); /* 240,240,240 */
     overflow-y: auto;
     transition: width 0.3s ease;
     z-index: 2;
 }
 
-.sidebar p {
-    padding: 8px;
+#sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
 }
+
+#sidebar li {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 5px 0;
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+}
+
+#sidebar input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+#sidebar label {
+    margin: 0;
+}
+
+#sidebar #create-map-button {
+    display: block;
+    width: calc(100% - 40px); /* Full width minus padding */
+    margin: 10px 20px; /* 20px sides margin and 10px top/bottom */
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Example button color */
+    color: white; /* Text color */
+    border: none;
+    border-radius: 15px; /* Adjust this value to increase or decrease the roundness of the corners */
+    cursor: pointer;
+    font-size: 1em; /* Adjust as needed */
+    transition: background-color 0.3s; /* Smooth background color transition on hover */
+}
+
+#sidebar #create-map-button:hover {
+    background-color: #45a049; /* Slightly darker shade on hover */
+}
+
+#login-dialog-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Dimmed background */
+    z-index: 1000;
+    display: none;
+}
+
+#login-dialog {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners for the dialog */
+    width: 300px; /* Fixed width, you can adjust as needed */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: adds a shadow for depth */
+}
+
+#login-header {
+    background-color: #006400; /* Dark green background */
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px 8px 0 0; /* Rounded corners for the header */
+    position: relative;
+}
+
+#login-header img {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#login-form {
+    text-align: center;
+    padding-top: 20px;
+}
+
+#login-form input {
+    margin-bottom: 10px;
+    width: calc(100% - 20px); /* Full width minus padding */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#forgot-password {
+    color: #009688; /* Teal color for the link */
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+#login-form button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #ff4500; /* Orange-red color for the button */
+    color: white;
+    cursor: pointer;
+}
+
 
 @supports (-webkit-touch-callout: none) {
     #container {

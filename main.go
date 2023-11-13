@@ -3,15 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/OpticalFlyer/hld/centerlines"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
+
+var db *gorm.DB
 
 type PolygonRequest struct {
 	Polygon [][]float64 `json:"polygon"`
@@ -56,24 +61,6 @@ func handleGetSitesInPolygon(c *gin.Context) {
 
 	fmt.Println(polygonWKT)
 
-	// Establish your database connection
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	dbname := os.Getenv("DB_NAME")
-	password := os.Getenv("DB_PASSWORD")
-
-	//connectionString := "host=localhost user=hld dbname=hld sslmode=disable password=malloc32$" // Local
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=require password=%s", host, port, user, dbname, password)
-
-	db, err := gorm.Open("postgres", connectionString)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
-		return
-	}
-	defer db.Close()
-	fmt.Println("Connected to database")
-
 	// Fetch points within the polygon and convert to GeoJSON
 	rows, err := db.Raw(`SELECT ST_AsGeoJSON(geom) FROM sites WHERE ST_Within(geom, ST_GeomFromText(?, 4326))`, polygonWKT).Rows()
 	if err != nil {
@@ -103,10 +90,80 @@ func handleGetSitesInPolygon(c *gin.Context) {
 }
 
 func main() {
+	// Establish your database connection
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
+	var sslmode string
+
+	if host == "localhost" {
+		sslmode = "disable"
+	} else {
+		sslmode = "require"
+	}
+
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s", host, port, user, dbname, sslmode, password)
+
+	var err error
+	db, err = gorm.Open("postgres", connectionString)
+	if err != nil {
+		log.Fatal("Failed to connect to database")
+		return
+	}
+	defer db.Close()
+
 	r := gin.Default()
+
+	store := cookie.NewStore([]byte("malloc32$"))
+	r.Use(sessions.Sessions("hld-session", store))
 
 	r.GET("/", func(c *gin.Context) {
 		c.File("./static/index.html")
+	})
+
+	r.GET("/check-auth", func(c *gin.Context) {
+		session := sessions.Default(c)
+		authenticated := session.Get("authenticated")
+		if authenticated == true {
+			c.JSON(http.StatusOK, gin.H{"authenticated": true})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"authenticated": false})
+		}
+	})
+
+	r.POST("/login", func(c *gin.Context) {
+		var loginForm struct {
+			Username string `form:"username"`
+			Password string `form:"password"`
+		}
+
+		// This will bind the form data to the struct
+		if err := c.ShouldBind(&loginForm); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Check the credentials: if they are valid, set the session
+		if loginForm.Username == "test" && loginForm.Password == "dummy" {
+			session := sessions.Default(c)
+			session.Set("authenticated", true)
+			if err := session.Save(); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session"})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials"})
+		}
+	})
+
+	r.POST("/logout", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Delete("authenticated")
+		session.Save()
+		c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
 	})
 
 	// Serve all files in the "static" directory
