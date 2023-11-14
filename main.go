@@ -42,6 +42,8 @@ func main() {
 	}
 	defer db.Close()
 
+	db.AutoMigrate(&User{})
+
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte("malloc32$"))
@@ -60,6 +62,10 @@ func main() {
 
 	// Serve all files in the "static" directory
 	r.Static("/static", "./static")
+
+	r.POST("/createuser", createUser)
+	r.GET("/users", getUsers)
+	r.DELETE("/users/:id", deleteUser)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

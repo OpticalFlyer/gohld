@@ -1,6 +1,6 @@
 var loggedin = false;
 
-        document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
     var loginForm = document.getElementById('loginForm');
 
     loginForm.addEventListener('submit', function(event) {
@@ -73,39 +73,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 });
 
-        // Function to check login status
-        function checkLoginStatus() {
-            fetch('/check-auth')
-                .then(response => {
-                    // If the response is successful, assume the user is logged in
-                    if (response.ok) {
-                        return response.json();  // Parse the JSON response
-                    } else {
-                        // If the response is not successful, assume the user is not logged in
-                        throw new Error('Not logged in');
-                    }
-                })
-                .then(data => {
-                    // Update the login state based on the response
-                    loggedin = data.authenticated;
-                    toggleLoginDialog(); // Update the login dialog visibility
-                })
-                .catch(error => {
-                    console.error('Error checking login status:', error);
-                    loggedin = false;
-                    toggleLoginDialog(); // Ensure the login dialog is shown if not logged in
-                });
-        }
-
-        // Function to toggle the login dialog visibility
-        function toggleLoginDialog() {
-            var loginDialog = document.getElementById('login-dialog-container');
-            if (loggedin) {
-                loginDialog.style.display = 'none'; // Hide it
+// Function to check login status
+function checkLoginStatus() {
+    fetch('/check-auth')
+        .then(response => {
+            // If the response is successful, assume the user is logged in
+            if (response.ok) {
+                return response.json();  // Parse the JSON response
             } else {
-                loginDialog.style.display = 'flex'; // Show it, since the container is flex
+                // If the response is not successful, assume the user is not logged in
+                throw new Error('Not logged in');
             }
-        }
+        })
+        .then(data => {
+            // Update the login state based on the response
+            loggedin = data.authenticated;
+            toggleLoginDialog(); // Update the login dialog visibility
+        })
+        .catch(error => {
+            console.error('Error checking login status:', error);
+            loggedin = false;
+            toggleLoginDialog(); // Ensure the login dialog is shown if not logged in
+        });
+}
 
-        // Call the function to check the initial login status
-        checkLoginStatus();
+// Function to toggle the login dialog visibility
+function toggleLoginDialog() {
+    var loginDialog = document.getElementById('login-dialog-container');
+    if (loggedin) {
+        loginDialog.style.display = 'none'; // Hide it
+    } else {
+        loginDialog.style.display = 'flex'; // Show it, since the container is flex
+    }
+}
+
+// Call the function to check the initial login status
+checkLoginStatus();

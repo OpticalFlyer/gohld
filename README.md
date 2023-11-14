@@ -1,7 +1,7 @@
 # hld
 Fiber optic network high-level design
 
-# db setup
+## db setup
 psql postgres
 
 CREATE DATABASE hld WITH OWNER = hld;
@@ -15,7 +15,9 @@ CREATE TABLE roads (
     geo_data GEOMETRY
 );
 
-# deployment
+## deployment
 git pull
+
 go build .
+
 systemctl restart hld

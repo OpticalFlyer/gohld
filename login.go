@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func checkAuth(c *gin.Context) {
@@ -52,3 +53,51 @@ func logout(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
 }
+
+// hashPassword hashes a password using bcrypt
+func hashPassword(password string) ([]byte, error) {
+	// Generate a salt with a cost of 12 (adjust the cost as needed)
+	saltCost := 12
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), saltCost)
+	if err != nil {
+		return nil, err
+	}
+	return hashedPassword, nil
+}
+
+// checkPassword checks if a password matches the hashed password
+func checkPassword(password string, hashedPassword []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	return err == nil
+}
+
+/* Example password hashing and checking
+// Create and hash a password
+    password := "mySecretPassword"
+    hashedPassword, err := hashPassword(password)
+    if err != nil {
+        fmt.Println("Error hashing password:", err)
+        return
+    }
+
+    // Create a new user
+    newUser := User{
+        Email:        "user@example.com",
+        PasswordHash: hashedPassword,
+    }
+
+    // Insert the user into the database
+    db.Create(&newUser)
+
+    // Query the user from the database
+    var queriedUser User
+    db.Where("email = ?", "user@example.com").First(&queriedUser)
+
+    // Verify the password
+    isValid := checkPassword("mySecretPassword", queriedUser.PasswordHash)
+    if isValid {
+        fmt.Println("Password is valid.")
+    } else {
+        fmt.Println("Password is invalid.")
+    }
+*/

@@ -34,7 +34,7 @@ html, body {
 }
 
 
-#sidebar {
+.sidebar {
     position: absolute;
     top: 0;
     left: 50px; /* The width of the toolbar */
@@ -46,13 +46,13 @@ html, body {
     z-index: 2;
 }
 
-#sidebar ul {
+.sidebar ul {
     list-style-type: none;
     padding: 0;
     margin: 20px 0;
 }
 
-#sidebar li {
+.sidebar li {
     display: flex;
     align-items: center;
     padding: 10px 20px;
@@ -61,15 +61,15 @@ html, body {
     border-bottom: 1px solid #ccc;
 }
 
-#sidebar input[type="checkbox"] {
+.sidebar input[type="checkbox"] {
     margin-right: 10px;
 }
 
-#sidebar label {
+.sidebar label {
     margin: 0;
 }
 
-#sidebar #create-map-button {
+.create-button {
     display: block;
     width: calc(100% - 40px); /* Full width minus padding */
     margin: 10px 20px; /* 20px sides margin and 10px top/bottom */
@@ -83,9 +83,35 @@ html, body {
     transition: background-color 0.3s; /* Smooth background color transition on hover */
 }
 
-#sidebar #create-map-button:hover {
+.create-button:hover {
     background-color: #45a049; /* Slightly darker shade on hover */
 }
+
+.icon-container {
+    margin-left: auto;
+    display: flex;
+}
+
+.edit-icon, .delete-icon {
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 5px; /* Rounded corners for the icon buttons */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.edit-icon:hover {
+    background-color: #e7e7e7; /* Light grey background on hover for edit icon */
+}
+
+.delete-icon {
+    color: red; /* Make the trashcan icon red */
+}
+
+.delete-icon:hover {
+    background-color: #fbecec; /* Light red background on hover for delete icon */
+}
+
 
 #login-dialog-container {
     display: flex;

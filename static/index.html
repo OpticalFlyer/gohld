@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css"/>
+    <link rel="stylesheet" href="/static/dialog.css"/>
 </head>
 <body>
     <div id="container">
         <div id="toolbar">
             <button id="toggle-sidebar" class="toolbar-button">☰</button>
+            <button id="users-button" class="toolbar-button">👤</button>
             <!-- Logout Button -->
             <button id="logout-button" class="toolbar-button">⇦</button>
         </div>
@@ -18,12 +21,19 @@
         <div id="map"></div>
     </div>
 
-    <div id="sidebar">
-        <button id="create-map-button">Create Map</button>
+    <div id="sidebar" class="sidebar">
+        <button id="create-map-button" class="create-button">Create Map</button>
         <ul>
             <li><input type="checkbox" id="map1-checkbox" /><label for="map1-checkbox">Map 1</label></li>
             <li><input type="checkbox" id="map2-checkbox" /><label for="map2-checkbox">Map 2</label></li>
             <li><input type="checkbox" id="map3-checkbox" /><label for="map3-checkbox">Map 3</label></li>
+        </ul>
+    </div>
+
+    <div id="users-sidebar" class="sidebar">
+        <button id="create-user-button" class="create-button">Create User</button>
+        <ul id="user-list">
+            <!-- Dynamically populated user list will go here -->
         </ul>
     </div>
 
@@ -41,7 +51,18 @@
                 </form>
             </div>
         </div>
-    </div>    
+    </div>
+
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <h2>Create User</h2>
+            <input type="text" class="input-field" placeholder="Name">
+            <input type="email" class="input-field" placeholder="Email">
+            <input type="password" class="input-field" placeholder="Password">
+            <button id="cancelButton" class="button">Cancel</button>
+            <button id="saveButton" class="button">Save</button>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
@@ -50,5 +71,125 @@
     <script src="/static/sidebar.js"></script>
     <script src="static/map.js"></script>
     <script src="static/login.js"></script>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("createUserModal");
+    
+        // Get the buttons
+        var saveBtn = document.getElementById("saveButton");
+        var cancelBtn = document.getElementById("cancelButton");
+    
+        saveBtn.onclick = function() {
+            var name = document.querySelector('.modal-content input[type="text"]').value;
+            var email = document.querySelector('.modal-content input[type="email"]').value;
+            var password = document.querySelector('.modal-content input[type="password"]').value;
+
+            fetch('/createuser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Name: name, Email: email, Passwd: password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('User created:', data);
+                modal.style.display = "none";
+                fetchUsers();
+                setupEventListeners();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    
+        // Cancel and close dialog
+        cancelBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchUsers();
+            setupEventListeners();
+        });
+
+        function fetchUsers() {
+            fetch('/users')
+            .then(response => response.json())
+            .then(data => updateSidebar(data.users))
+            .catch(error => console.error('Error fetching users:', error));
+        }
+
+        function updateSidebar(users) {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = ''; // Clear existing list items
+
+            users.forEach(user => {
+                const listItem = document.createElement('li');
+                const label = document.createElement('label');
+                const iconContainer = document.createElement('div');
+
+                // Configure the label
+                label.textContent = user.Name;
+
+                // Configure the icon container
+                iconContainer.className = 'icon-container';
+                iconContainer.innerHTML = `
+                    <i class="fas fa-pencil-alt edit-icon" data-user-id="${user.ID}"></i>
+                    <i class="fas fa-trash delete-icon" data-user-id="${user.ID}"></i>`;
+
+                // Append elements to the list item
+                listItem.appendChild(label);
+                listItem.appendChild(iconContainer);
+
+                // Append the list item to the user list
+                userList.appendChild(listItem);
+            });
+        }
+
+        function setupEventListeners() {
+            const userList = document.getElementById('user-list');
+            
+            userList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('edit-icon')) {
+                    const userID = event.target.getAttribute('data-user-id');
+                    editUser(userID);
+                } else if (event.target.classList.contains('delete-icon')) {
+                    const userID = event.target.getAttribute('data-user-id');
+                    deleteUser(userID);
+                }
+            });
+        }
+
+        function editUser(userID) {
+            console.log('Edit user with ID:', userID);
+            // Add logic to edit user
+        }
+
+        function deleteUser(userID) {
+            console.log('Delete user with ID:', userID);
+
+            // Send a DELETE request to the delete user endpoint
+            fetch(`/users/${userID}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('User deleted successfully');
+                    // Add logic to handle success, e.g., removing the user from the UI
+                    fetchUsers();
+                    setupEventListeners();
+                } else {
+                    console.error('Failed to delete user');
+                    // Add logic to handle failure, e.g., displaying an error message
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Add logic to handle network errors, if needed
+            });
+        }
+    </script>
 </body>
 </html>

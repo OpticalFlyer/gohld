@@ -233,7 +233,7 @@ var DrawPolygonControl = L.Control.extend({
         container.style.cursor = 'pointer';
 
         var icon = L.DomUtil.create('i', 'icon', container);
-        icon.textContent = 'Sites';
+        icon.textContent = '🏠';
         icon.title = 'Draw Polygon to Fetch Sites';
 
         container.onclick = function () {
